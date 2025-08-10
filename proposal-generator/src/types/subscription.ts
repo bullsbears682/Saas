@@ -39,7 +39,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     interval: 'month',
     features: [
       '3 proposals per month',
-      'Basic template',
+      'Modern template only',
       'Watermarked PDFs',
       'Email support'
     ],
@@ -60,7 +60,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     interval: 'month',
     features: [
       '25 proposals per month',
-      'All templates',
+      'All 4 premium templates',
       'Custom branding & logo',
       'No watermark',
       'Priority email support'
@@ -82,8 +82,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     interval: 'month',
     features: [
       'Unlimited proposals',
-      'All templates & themes',
-      'Advanced branding',
+      'All premium templates',
+      'Advanced branding & themes',
       'Proposal analytics',
       'Client portal access',
       'Phone & email support'

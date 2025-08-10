@@ -7,19 +7,22 @@ import { BrandingForm } from './components/BrandingForm';
 import { TermsForm } from './components/TermsForm';
 import { PricingPage } from './components/PricingPage';
 import { UsageDisplay } from './components/UsageDisplay';
-import { generateProposalPDF } from './utils/pdfGenerator';
+import { TemplateSelector } from './components/TemplateSelector';
+import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
+import { PDFTemplate } from './types/templates';
 import { sampleProposalData } from './data/sampleData';
 import { SubscriptionManager } from './utils/subscriptionManager';
 import { createCheckoutSession } from './utils/stripeConfig';
 import { SubscriptionTier } from './types/subscription';
 import './App.css';
 
-type FormStep = 'client' | 'project' | 'branding' | 'terms' | 'preview';
+type FormStep = 'client' | 'project' | 'branding' | 'template' | 'terms' | 'preview';
 
 function App() {
   const [currentStep, setCurrentStep] = useState<FormStep>('client');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<PDFTemplate>('modern');
 
   const {
     register,
@@ -48,6 +51,7 @@ function App() {
     { key: 'client', title: 'Client Info', description: 'Enter client details' },
     { key: 'project', title: 'Project Details', description: 'Define project scope' },
     { key: 'branding', title: 'Branding', description: 'Add your branding' },
+    { key: 'template', title: 'Template', description: 'Choose PDF style' },
     { key: 'terms', title: 'Terms', description: 'Set terms & conditions' },
     { key: 'preview', title: 'Preview', description: 'Review & generate' }
   ];
@@ -71,7 +75,7 @@ function App() {
     setIsGenerating(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
-      generateProposalPDF(data);
+      generateEnhancedProposalPDF(data, selectedTemplate);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
@@ -112,19 +116,29 @@ function App() {
         return <ClientInfoForm register={register} errors={errors} />;
       case 'project':
         return <ProjectDetailsForm register={register} errors={errors} />;
-      case 'branding':
-        return <BrandingForm 
-          register={register} 
-          errors={errors} 
-          setValue={setValue}
-          canUseBranding={canUseBranding}
-          canUploadLogo={canUploadLogo}
-          onUpgrade={handleShowPricing}
-        />;
-      case 'terms':
-        return <TermsForm register={register} errors={errors} />;
+              case 'branding':
+          return <BrandingForm 
+            register={register} 
+            errors={errors} 
+            setValue={setValue}
+            canUseBranding={canUseBranding}
+            canUploadLogo={canUploadLogo}
+            onUpgrade={handleShowPricing}
+          />;
+        case 'template':
+          return <TemplateSelector
+            selectedTemplate={selectedTemplate}
+            onTemplateChange={setSelectedTemplate}
+            onUpgrade={handleShowPricing}
+          />;
+        case 'terms':
+          return <TermsForm register={register} errors={errors} />;
       case 'preview':
-        return <ProposalPreview data={watchedData} />;
+        return <ProposalPreview 
+          data={watchedData} 
+          selectedTemplate={selectedTemplate}
+          onChangeTemplate={() => setCurrentStep('template')}
+        />;
       default:
         return null;
     }
@@ -226,12 +240,51 @@ function App() {
 }
 
 // Preview Component
-const ProposalPreview: React.FC<{ data: Partial<ProposalData> }> = ({ data }) => {
+const ProposalPreview: React.FC<{ 
+  data: Partial<ProposalData>; 
+  selectedTemplate: PDFTemplate;
+  onChangeTemplate: () => void;
+}> = ({ data, selectedTemplate, onChangeTemplate }) => {
   return (
     <div className="card">
-      <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1.5rem' }}>
-        Proposal Preview
-      </h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1.5rem' }}>
+          Proposal Preview
+        </h2>
+        
+        {/* Template Info */}
+        <div style={{
+          backgroundColor: '#f0f9ff',
+          border: '1px solid #bfdbfe',
+          borderRadius: '0.5rem',
+          padding: '0.75rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#1e40af' }}>
+              📄 Using <strong>{selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)}</strong> template
+              {selectedTemplate !== 'modern' && (
+                <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>• Premium</span>
+              )}
+            </p>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              {selectedTemplate === 'corporate' && 'Includes: Cover page, Table of contents, Executive summary, Timeline, Investment breakdown'}
+              {selectedTemplate === 'creative' && 'Includes: Creative layouts, Bold design elements, Value proposition'}
+              {selectedTemplate === 'minimal' && 'Includes: Clean typography, Lots of whitespace, Elegant simplicity'}
+              {selectedTemplate === 'modern' && 'Includes: Professional layout, Color accents, Clean design'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onChangeTemplate}
+            className="btn btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+          >
+            Change Template
+          </button>
+        </div>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem' }}>
         {/* Header Preview */}

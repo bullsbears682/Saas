@@ -4,4 +4,6 @@ export { BrandingForm } from './BrandingForm';
 export { TermsForm } from './TermsForm';
 export { PricingPage } from './PricingPage';
 export { UsageDisplay } from './UsageDisplay';
+export { TemplateSelector } from './TemplateSelector';
+export { TemplatePreview } from './TemplatePreview';
 export { LoadingSpinner } from './LoadingSpinner';
