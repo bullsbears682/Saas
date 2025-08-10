@@ -12,6 +12,8 @@ import { PdfFeatureShowcase } from './components/PdfFeatureShowcase';
 import { StyledPdfShowcase } from './components/StyledPdfShowcase';
 import { PdfStyleComparison } from './components/PdfStyleComparison';
 import { DemoNotice } from './components/DemoNotice';
+import { DemoFeatures } from './components/DemoFeatures';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthModal } from './components/AuthModal';
 import { UserHeader } from './components/UserHeader';
@@ -19,7 +21,7 @@ import { ProposalDashboard } from './components/ProposalDashboard';
 import { useAuth } from './hooks/useAuth';
 import { proposalService, SavedProposal } from './services/proposalService';
 import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
-import { generateUltraPremiumPDF } from './utils/ultraPremiumPdfGenerator';
+
 import { generateStyledPDF } from './utils/styledPdfGenerator';
 import { PDFTemplate } from './types/templates';
 import { sampleProposalData } from './data/sampleData';
@@ -234,17 +236,36 @@ function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      <UserHeader 
-        onShowAuth={handleShowAuth}
-        onShowDashboard={handleShowDashboard}
-        onShowPricing={handleShowPricing}
-      />
-      
-      {/* Demo Notice */}
-      <DemoNotice />
+    <ErrorBoundary>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+        <UserHeader 
+          onShowAuth={handleShowAuth}
+          onShowDashboard={handleShowDashboard}
+          onShowPricing={handleShowPricing}
+        />
+        
+        {/* Demo Notice */}
+        <DemoNotice />
+        
+        {/* Demo Features Guide */}
+        <DemoFeatures 
+          onLoadSample={loadSampleData}
+          onShowPricing={handleShowPricing}
+        />
 
-            <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+      {/* Render Dashboard if user is logged in and currentView is dashboard */}
+      {currentView === 'dashboard' && user && (
+        <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+          <ProposalDashboard 
+            onCreateNew={handleCreateNewProposal}
+            onEditProposal={handleEditProposal}
+          />
+        </div>
+      )}
+
+      {/* Render Form if currentView is form */}
+      {currentView === 'form' && (
+        <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
         {/* Header */}
         <header className="app-header">
           <h1>📄 Professional Proposal Generator</h1>
@@ -361,7 +382,8 @@ function App() {
             )}
           </div>
         </form>
-      </div>
+        </div>
+      )}
 
       {/* Auth Modal */}
       <AuthModal
@@ -381,7 +403,8 @@ function App() {
           }}
         />
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
 

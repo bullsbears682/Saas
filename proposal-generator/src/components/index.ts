@@ -10,6 +10,8 @@ export { PdfFeatureShowcase } from './PdfFeatureShowcase';
 export { StyledPdfShowcase } from './StyledPdfShowcase';
 export { PdfStyleComparison } from './PdfStyleComparison';
 export { DemoNotice } from './DemoNotice';
+export { DemoFeatures } from './DemoFeatures';
+export { ErrorBoundary } from './ErrorBoundary';
 export { AuthModal } from './AuthModal';
 export { UserHeader } from './UserHeader';
 export { ProposalDashboard } from './ProposalDashboard';

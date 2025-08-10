@@ -274,10 +274,11 @@ export class PDFDesigner {
       this.doc.setFont('helvetica', 'normal');
 
       let currentX = x;
-      row.forEach((cell, index) => {
+      for (let index = 0; index < row.length; index++) {
+        const cell = row[index];
         this.doc.text(cell.toString(), currentX + 5, currentY + 8);
         currentX += columnWidths[index];
-      });
+      }
 
       currentY += rowHeight;
     }
@@ -287,7 +288,6 @@ export class PDFDesigner {
 
   // Professional quote/testimonial boxes
   addQuoteBox(text: string, author: string, x: number, y: number, width: number): number {
-    const padding = 15;
     const quoteHeight = 50;
     
     // Quote background with subtle gradient

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { proposalService, SavedProposal } from '../services/proposalService';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
@@ -14,13 +14,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ onCreateNe
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      loadProposals();
-    }
-  }, [user]);
-
-  const loadProposals = async () => {
+  const loadProposals = useCallback(async () => {
     if (!user) return;
     
     try {
@@ -33,7 +27,13 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ onCreateNe
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadProposals();
+    }
+  }, [user, loadProposals]);
 
   const handleStatusChange = async (proposalId: string, newStatus: SavedProposal['status']) => {
     try {
