@@ -9,6 +9,8 @@ import { PricingPage } from './components/PricingPage';
 import { UsageDisplay } from './components/UsageDisplay';
 import { TemplateSelector } from './components/TemplateSelector';
 import { PdfFeatureShowcase } from './components/PdfFeatureShowcase';
+import { StyledPdfShowcase } from './components/StyledPdfShowcase';
+import { PdfStyleComparison } from './components/PdfStyleComparison';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthModal } from './components/AuthModal';
 import { UserHeader } from './components/UserHeader';
@@ -17,6 +19,7 @@ import { useAuth } from './hooks/useAuth';
 import { proposalService, SavedProposal } from './services/proposalService';
 import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
 import { generateUltraPremiumPDF } from './utils/ultraPremiumPdfGenerator';
+import { generateStyledPDF } from './utils/styledPdfGenerator';
 import { PDFTemplate } from './types/templates';
 import { sampleProposalData } from './data/sampleData';
 import { SubscriptionManager } from './utils/subscriptionManager';
@@ -91,12 +94,12 @@ function App() {
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
       
-      // Use ultra-premium generator for paid users, enhanced for free users
+      // Use new styled generator for the best experience
       const currentPlan = SubscriptionManager.getCurrentPlan();
       if (currentPlan.id !== 'free') {
-        await generateUltraPremiumPDF(data, selectedTemplate);
+        await generateStyledPDF(data, selectedTemplate); // New styled generator for paid users
       } else {
-        generateEnhancedProposalPDF(data, selectedTemplate);
+        generateEnhancedProposalPDF(data, selectedTemplate); // Enhanced for free users
       }
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -319,25 +322,25 @@ function App() {
                   {isGenerating ? (
                     <>
                       <LoadingSpinner />
-                      Generating {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF...
+                      Generating {canUseBranding ? 'Professional Styled' : 'Enhanced'} PDF...
                     </>
                   ) : (
                     <>
-                      📄 Download {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF
+                                              📄 Download {canUseBranding ? 'Professional Styled' : 'Enhanced'} PDF
                       {canUseBranding && (
-                        <span style={{
-                          position: 'absolute',
-                          top: '-8px',
-                          right: '-8px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          fontSize: '0.625rem',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '0.75rem',
-                          fontWeight: 'bold'
-                        }}>
-                          ULTRA
-                        </span>
+                                                  <span style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            fontSize: '0.625rem',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '0.75rem',
+                            fontWeight: 'bold'
+                          }}>
+                            STYLED
+                          </span>
                       )}
                     </>
                   )}
@@ -435,6 +438,12 @@ const ProposalPreview: React.FC<{
 
         {/* PDF Feature Showcase */}
         <PdfFeatureShowcase />
+        
+        {/* Styled PDF Showcase */}
+        <StyledPdfShowcase />
+        
+        {/* PDF Style Comparison */}
+        <PdfStyleComparison />
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem' }}>
         {/* Header Preview */}

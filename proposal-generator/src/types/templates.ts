@@ -13,33 +13,33 @@ export const PDF_TEMPLATES: TemplateConfig[] = [
   {
     id: 'modern',
     name: 'Modern',
-    description: 'Enhanced contemporary design with improved styling',
+    description: 'Professional styled design with enhanced typography and modern elements',
     preview: '/templates/modern-preview.png',
     isPremium: false,
-    features: ['Enhanced typography', 'Color gradients', 'Professional sections', 'QR codes (paid)']
+    features: ['Professional typography', 'Modern styling', 'Clean layouts', 'Enhanced gradients (paid)']
   },
   {
     id: 'corporate',
     name: 'Corporate',
-    description: 'Ultra-professional with cover page, charts, ROI analysis',
+    description: 'Enterprise-grade styling with gradients, professional cards, and advanced layouts',
     preview: '/templates/corporate-preview.png',
     isPremium: true,
-    features: ['Cover page & TOC', 'Executive summary', 'Charts & ROI analysis', 'Signature page', 'QR codes']
+    features: ['Gradient headers', 'Professional cards', 'Executive summary', 'ROI analysis', 'Styled timelines']
   },
   {
     id: 'creative',
     name: 'Creative',
-    description: 'Artistic design with charts, portfolios, testimonials',
+    description: 'Creative styling with artistic gradients, colorful cards, and dynamic layouts',
     preview: '/templates/creative-preview.png',
     isPremium: true,
-    features: ['Artistic layouts', 'Project charts', 'Portfolio showcase', 'Testimonials', 'Visual elements']
+    features: ['Artistic gradients', 'Colorful metrics', 'Creative layouts', 'Visual storytelling', 'Dynamic elements']
   },
   {
     id: 'minimal',
     name: 'Minimal',
-    description: 'Simple, elegant design focusing on content',
+    description: 'Elegant minimalist styling with perfect typography and sophisticated spacing',
     preview: '/templates/minimal-preview.png',
     isPremium: true,
-    features: ['Ultra-clean', 'Typography-focused', 'Lots of whitespace', 'Scandinavian style']
+    features: ['Perfect typography', 'Elegant spacing', 'Clean dividers', 'Sophisticated simplicity']
   }
 ];
