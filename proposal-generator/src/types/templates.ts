@@ -13,26 +13,26 @@ export const PDF_TEMPLATES: TemplateConfig[] = [
   {
     id: 'modern',
     name: 'Modern',
-    description: 'Clean, contemporary design with bold headers',
+    description: 'Enhanced contemporary design with improved styling',
     preview: '/templates/modern-preview.png',
     isPremium: false,
-    features: ['Clean typography', 'Color accents', 'Professional layout']
+    features: ['Enhanced typography', 'Color gradients', 'Professional sections', 'QR codes (paid)']
   },
   {
     id: 'corporate',
     name: 'Corporate',
-    description: 'Traditional business style with formal layout',
+    description: 'Ultra-professional with cover page, charts, ROI analysis',
     preview: '/templates/corporate-preview.png',
     isPremium: true,
-    features: ['Formal design', 'Executive summary', 'Charts & graphs', 'Professional headers']
+    features: ['Cover page & TOC', 'Executive summary', 'Charts & ROI analysis', 'Signature page', 'QR codes']
   },
   {
     id: 'creative',
     name: 'Creative',
-    description: 'Vibrant design perfect for creative agencies',
+    description: 'Artistic design with charts, portfolios, testimonials',
     preview: '/templates/creative-preview.png',
     isPremium: true,
-    features: ['Bold colors', 'Creative layouts', 'Visual elements', 'Brand-focused']
+    features: ['Artistic layouts', 'Project charts', 'Portfolio showcase', 'Testimonials', 'Visual elements']
   },
   {
     id: 'minimal',

@@ -62,6 +62,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '25 proposals per month',
       'All 4 premium templates',
       'Custom branding & logo',
+      'Ultra-premium PDFs with charts',
+      'QR codes & interactive elements',
       'No watermark',
       'Priority email support'
     ],
@@ -83,7 +85,11 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: [
       'Unlimited proposals',
       'All premium templates',
-      'Advanced branding & themes',
+      'Ultra-premium PDFs with charts',
+      'Advanced ROI analysis',
+      'Portfolio showcases',
+      'Signature pages',
+      'QR codes & contact cards',
       'Proposal analytics',
       'Client portal access',
       'Phone & email support'

@@ -6,4 +6,5 @@ export { PricingPage } from './PricingPage';
 export { UsageDisplay } from './UsageDisplay';
 export { TemplateSelector } from './TemplateSelector';
 export { TemplatePreview } from './TemplatePreview';
+export { PdfFeatureShowcase } from './PdfFeatureShowcase';
 export { LoadingSpinner } from './LoadingSpinner';

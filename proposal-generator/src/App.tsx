@@ -8,7 +8,10 @@ import { TermsForm } from './components/TermsForm';
 import { PricingPage } from './components/PricingPage';
 import { UsageDisplay } from './components/UsageDisplay';
 import { TemplateSelector } from './components/TemplateSelector';
+import { PdfFeatureShowcase } from './components/PdfFeatureShowcase';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
+import { generateUltraPremiumPDF } from './utils/ultraPremiumPdfGenerator';
 import { PDFTemplate } from './types/templates';
 import { sampleProposalData } from './data/sampleData';
 import { SubscriptionManager } from './utils/subscriptionManager';
@@ -75,7 +78,14 @@ function App() {
     setIsGenerating(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate processing
-      generateEnhancedProposalPDF(data, selectedTemplate);
+      
+      // Use ultra-premium generator for paid users, enhanced for free users
+      const currentPlan = SubscriptionManager.getCurrentPlan();
+      if (currentPlan.id !== 'free') {
+        await generateUltraPremiumPDF(data, selectedTemplate);
+      } else {
+        generateEnhancedProposalPDF(data, selectedTemplate);
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
@@ -211,9 +221,36 @@ function App() {
                 type="submit"
                 disabled={isGenerating || !isValid}
                 className="btn btn-primary btn-lg"
-                style={{ opacity: isGenerating || !isValid ? 0.5 : 1 }}
+                style={{ 
+                  opacity: isGenerating || !isValid ? 0.5 : 1,
+                  position: 'relative'
+                }}
               >
-                {isGenerating ? 'Generating PDF...' : 'Download PDF Proposal'}
+                {isGenerating ? (
+                  <>
+                    <LoadingSpinner />
+                    Generating {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF...
+                  </>
+                ) : (
+                  <>
+                    📄 Download {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF
+                    {canUseBranding && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        right: '-8px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        fontSize: '0.625rem',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '0.75rem',
+                        fontWeight: 'bold'
+                      }}>
+                        ULTRA
+                      </span>
+                    )}
+                  </>
+                )}
               </button>
             ) : (
               <button
@@ -245,6 +282,8 @@ const ProposalPreview: React.FC<{
   selectedTemplate: PDFTemplate;
   onChangeTemplate: () => void;
 }> = ({ data, selectedTemplate, onChangeTemplate }) => {
+  const currentPlan = SubscriptionManager.getCurrentPlan();
+  
   return (
     <div className="card">
               <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1.5rem' }}>
@@ -270,10 +309,16 @@ const ProposalPreview: React.FC<{
               )}
             </p>
             <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              {selectedTemplate === 'corporate' && 'Includes: Cover page, Table of contents, Executive summary, Timeline, Investment breakdown'}
-              {selectedTemplate === 'creative' && 'Includes: Creative layouts, Bold design elements, Value proposition'}
-              {selectedTemplate === 'minimal' && 'Includes: Clean typography, Lots of whitespace, Elegant simplicity'}
-              {selectedTemplate === 'modern' && 'Includes: Professional layout, Color accents, Clean design'}
+              {selectedTemplate === 'corporate' && (currentPlan.id !== 'free' ? 
+                'Ultra-Premium: Cover page, TOC, Charts, ROI analysis, QR codes, Signature page' : 
+                'Premium features available with paid plans')}
+              {selectedTemplate === 'creative' && (currentPlan.id !== 'free' ? 
+                'Ultra-Premium: Artistic layouts, Charts, Portfolio showcase, Testimonials' : 
+                'Premium features available with paid plans')}
+              {selectedTemplate === 'minimal' && (currentPlan.id !== 'free' ? 
+                'Ultra-Premium: Clean design with enhanced typography and contact cards' : 
+                'Premium features available with paid plans')}
+              {selectedTemplate === 'modern' && 'Enhanced: Professional layout, Color gradients, QR codes (paid plans)'}
             </p>
           </div>
           <button
@@ -283,10 +328,13 @@ const ProposalPreview: React.FC<{
             style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
           >
             Change Template
-          </button>
+                    </button>
         </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem' }}>
+
+        {/* PDF Feature Showcase */}
+        <PdfFeatureShowcase />
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', fontSize: '0.875rem' }}>
         {/* Header Preview */}
         <div className="preview-section">
           <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>{data.branding?.companyName}</h3>
