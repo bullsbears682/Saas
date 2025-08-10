@@ -10,6 +10,11 @@ import { UsageDisplay } from './components/UsageDisplay';
 import { TemplateSelector } from './components/TemplateSelector';
 import { PdfFeatureShowcase } from './components/PdfFeatureShowcase';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { AuthModal } from './components/AuthModal';
+import { UserHeader } from './components/UserHeader';
+import { ProposalDashboard } from './components/ProposalDashboard';
+import { useAuth } from './hooks/useAuth';
+import { proposalService, SavedProposal } from './services/proposalService';
 import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
 import { generateUltraPremiumPDF } from './utils/ultraPremiumPdfGenerator';
 import { PDFTemplate } from './types/templates';
@@ -20,12 +25,19 @@ import { SubscriptionTier } from './types/subscription';
 import './App.css';
 
 type FormStep = 'client' | 'project' | 'branding' | 'template' | 'terms' | 'preview';
+type AppView = 'form' | 'dashboard' | 'auth' | 'pricing';
 
 function App() {
   const [currentStep, setCurrentStep] = useState<FormStep>('client');
+  const [currentView, setCurrentView] = useState<AppView>('form');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<PDFTemplate>('modern');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [editingProposal, setEditingProposal] = useState<SavedProposal | null>(null);
+  
+  const { user, loading: authLoading } = useAuth();
 
   const {
     register,
@@ -105,6 +117,53 @@ function App() {
 
   const handleShowPricing = () => {
     setShowPricing(true);
+    setCurrentView('pricing');
+  };
+
+  const handleShowAuth = () => {
+    setShowAuthModal(true);
+  };
+
+  const handleShowDashboard = () => {
+    setCurrentView('dashboard');
+  };
+
+  const handleCreateNewProposal = () => {
+    setEditingProposal(null);
+    setCurrentView('form');
+    setCurrentStep('client');
+    reset(); // Reset form
+  };
+
+  const handleEditProposal = (proposal: SavedProposal) => {
+    setEditingProposal(proposal);
+    setCurrentView('form');
+    setCurrentStep('client');
+    setSelectedTemplate(proposal.template as PDFTemplate);
+    
+    // Load proposal data into form
+    reset(proposal.data);
+  };
+
+  const handleSaveProposal = async (data: ProposalData) => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    try {
+      if (editingProposal) {
+        await proposalService.updateProposal(editingProposal.id, data, selectedTemplate);
+        alert('Proposal updated successfully!');
+      } else {
+        await proposalService.saveProposal(user.uid, data, selectedTemplate);
+        alert('Proposal saved successfully!');
+      }
+      setCurrentView('dashboard');
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save proposal. Please try again.');
+    }
   };
 
   // Update usage display when component mounts
@@ -154,13 +213,35 @@ function App() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '1rem'
+      }}>
+        <LoadingSpinner />
+        <p>Loading ProposalPro...</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <h1>Proposal Generator</h1>
-          <p>Create professional project proposals in minutes</p>
+      <UserHeader 
+        onShowAuth={handleShowAuth}
+        onShowDashboard={handleShowDashboard}
+        onShowPricing={handleShowPricing}
+      />
+
+            <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        {/* Header */}
+        <header className="app-header">
+          <h1>📄 Professional Proposal Generator</h1>
+          <p>Create stunning business proposals in minutes</p>
           <button
             type="button"
             onClick={loadSampleData}
@@ -169,10 +250,7 @@ function App() {
           >
             Load Sample Data
           </button>
-        </div>
-      </header>
-
-              <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        </header>
         {/* Usage Display */}
         <UsageDisplay onUpgrade={handleShowPricing} />
 
@@ -217,41 +295,54 @@ function App() {
             </button>
 
             {currentStep === 'preview' ? (
-              <button
-                type="submit"
-                disabled={isGenerating || !isValid}
-                className="btn btn-primary btn-lg"
-                style={{ 
-                  opacity: isGenerating || !isValid ? 0.5 : 1,
-                  position: 'relative'
-                }}
-              >
-                {isGenerating ? (
-                  <>
-                    <LoadingSpinner />
-                    Generating {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF...
-                  </>
-                ) : (
-                  <>
-                    📄 Download {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF
-                    {canUseBranding && (
-                      <span style={{
-                        position: 'absolute',
-                        top: '-8px',
-                        right: '-8px',
-                        backgroundColor: '#10b981',
-                        color: 'white',
-                        fontSize: '0.625rem',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '0.75rem',
-                        fontWeight: 'bold'
-                      }}>
-                        ULTRA
-                      </span>
-                    )}
-                  </>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {user && (
+                  <button
+                    type="button"
+                    onClick={() => handleSaveProposal(watchedData)}
+                    className="btn btn-secondary"
+                    disabled={isGenerating}
+                  >
+                    💾 Save Proposal
+                  </button>
                 )}
-              </button>
+                
+                <button
+                  type="submit"
+                  disabled={isGenerating || !isValid}
+                  className="btn btn-primary btn-lg"
+                  style={{ 
+                    opacity: isGenerating || !isValid ? 0.5 : 1,
+                    position: 'relative'
+                  }}
+                >
+                  {isGenerating ? (
+                    <>
+                      <LoadingSpinner />
+                      Generating {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF...
+                    </>
+                  ) : (
+                    <>
+                      📄 Download {canUseBranding ? 'Ultra-Premium' : 'Enhanced'} PDF
+                      {canUseBranding && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '-8px',
+                          right: '-8px',
+                          backgroundColor: '#10b981',
+                          color: 'white',
+                          fontSize: '0.625rem',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.75rem',
+                          fontWeight: 'bold'
+                        }}>
+                          ULTRA
+                        </span>
+                      )}
+                    </>
+                  )}
+                </button>
+              </div>
             ) : (
               <button
                 type="button"
@@ -265,11 +356,22 @@ function App() {
         </form>
       </div>
 
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        onModeChange={setAuthMode}
+      />
+
       {/* Pricing Modal */}
       {showPricing && (
         <PricingPage
           onSelectPlan={handleSelectPlan}
-          onClose={() => setShowPricing(false)}
+          onClose={() => {
+            setShowPricing(false);
+            setCurrentView(user ? 'dashboard' : 'form');
+          }}
         />
       )}
     </div>

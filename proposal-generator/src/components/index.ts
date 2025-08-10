@@ -7,4 +7,7 @@ export { UsageDisplay } from './UsageDisplay';
 export { TemplateSelector } from './TemplateSelector';
 export { TemplatePreview } from './TemplatePreview';
 export { PdfFeatureShowcase } from './PdfFeatureShowcase';
+export { AuthModal } from './AuthModal';
+export { UserHeader } from './UserHeader';
+export { ProposalDashboard } from './ProposalDashboard';
 export { LoadingSpinner } from './LoadingSpinner';
