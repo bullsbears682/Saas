@@ -34,7 +34,8 @@
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "serve": "npm run build && npx serve -s build"
+    "serve": "npm run build && npx serve -s build",
+    "deploy": "npm run build && echo 'Build complete! Ready for Netlify deployment.'"
   },
   "eslintConfig": {
     "extends": [
