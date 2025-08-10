@@ -1,12 +1,24 @@
 import jsPDF from 'jspdf';
 import { ProposalData } from '../types';
+import { SubscriptionManager } from './subscriptionManager';
 
 export const generateProposalPDF = (data: ProposalData): void => {
+  // Check usage limits
+  const canGenerate = SubscriptionManager.canGenerateProposal();
+  if (!canGenerate.allowed) {
+    alert(`You've reached your monthly limit of ${canGenerate.limit} proposals. Please upgrade your plan to continue.`);
+    return;
+  }
+
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   let yPosition = margin;
+  
+  // Check if watermark should be added (free tier)
+  const plan = SubscriptionManager.getCurrentPlan();
+  const shouldAddWatermark = plan.limits.watermark;
 
   // Set primary color from branding
   const primaryColor = data.branding.primaryColor || '#3b82f6';
@@ -127,6 +139,14 @@ export const generateProposalPDF = (data: ProposalData): void => {
     doc.text(`Address: ${data.branding.yourAddress}`, margin + 10, yPosition + 12);
   }
 
+  // Add watermark for free users
+  if (shouldAddWatermark) {
+    addWatermark(doc, pageWidth, pageHeight);
+  }
+
+  // Increment usage after successful generation
+  SubscriptionManager.incrementUsage();
+
   // Save the PDF
   const fileName = `${data.project.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_proposal.pdf`;
   doc.save(fileName);
@@ -199,4 +219,29 @@ const formatCurrency = (amount: number, currency: string): string => {
   };
   
   return `${symbols[currency] || '$'}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const addWatermark = (doc: jsPDF, pageWidth: number, pageHeight: number): void => {
+  // Add semi-transparent watermark
+  doc.setTextColor(200, 200, 200);
+  doc.setFontSize(60);
+  doc.setFont('helvetica', 'bold');
+  
+  // Rotate and add watermark text
+  const centerX = pageWidth / 2;
+  const centerY = pageHeight / 2;
+  
+  doc.text('DEMO VERSION', centerX, centerY, {
+    angle: 45,
+    align: 'center'
+  });
+  
+  // Add small footer watermark
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.text('Generated with Proposal Generator - Upgrade to remove watermark', 
+    pageWidth / 2, pageHeight - 10, { align: 'center' });
+  
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
 };

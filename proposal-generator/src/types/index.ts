@@ -34,3 +34,6 @@ export interface ProposalData {
   terms: string;
   validUntil: string;
 }
+
+// Re-export subscription types
+export * from './subscription';

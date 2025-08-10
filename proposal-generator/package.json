@@ -2,13 +2,22 @@
   "name": "proposal-generator",
   "version": "1.0.0",
   "description": "A modern web application for creating professional project proposals with PDF generation",
-  "keywords": ["proposal", "pdf", "generator", "freelancer", "business", "react", "typescript"],
+  "keywords": [
+    "proposal",
+    "pdf",
+    "generator",
+    "freelancer",
+    "business",
+    "react",
+    "typescript"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "private": true,
   "dependencies": {
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
+    "@stripe/stripe-js": "^7.8.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",

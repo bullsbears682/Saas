@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { ProposalData } from './types';
 import { ClientInfoForm } from './components/ClientInfoForm';
 import { ProjectDetailsForm } from './components/ProjectDetailsForm';
 import { BrandingForm } from './components/BrandingForm';
 import { TermsForm } from './components/TermsForm';
+import { PricingPage } from './components/PricingPage';
+import { UsageDisplay } from './components/UsageDisplay';
 import { generateProposalPDF } from './utils/pdfGenerator';
 import { sampleProposalData } from './data/sampleData';
+import { SubscriptionManager } from './utils/subscriptionManager';
+import { createCheckoutSession } from './utils/stripeConfig';
+import { SubscriptionTier } from './types/subscription';
 import './App.css';
 
 type FormStep = 'client' | 'project' | 'branding' | 'terms' | 'preview';
@@ -14,6 +19,7 @@ type FormStep = 'client' | 'project' | 'branding' | 'terms' | 'preview';
 function App() {
   const [currentStep, setCurrentStep] = useState<FormStep>('client');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
 
   const {
     register,
@@ -78,6 +84,28 @@ function App() {
     reset(sampleProposalData as ProposalData);
   };
 
+  const handleSelectPlan = async (tier: SubscriptionTier) => {
+    setShowPricing(false);
+    await createCheckoutSession(tier);
+  };
+
+  const handleShowPricing = () => {
+    setShowPricing(true);
+  };
+
+  // Update usage display when component mounts
+  useEffect(() => {
+    // Force re-render of usage display
+    const timer = setTimeout(() => {
+      // This ensures the usage display updates after initial render
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Check if user can access branding features
+  const canUseBranding = SubscriptionManager.hasFeature('customBranding');
+  const canUploadLogo = SubscriptionManager.hasFeature('logoUpload');
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 'client':
@@ -85,7 +113,14 @@ function App() {
       case 'project':
         return <ProjectDetailsForm register={register} errors={errors} />;
       case 'branding':
-        return <BrandingForm register={register} errors={errors} setValue={setValue} />;
+        return <BrandingForm 
+          register={register} 
+          errors={errors} 
+          setValue={setValue}
+          canUseBranding={canUseBranding}
+          canUploadLogo={canUploadLogo}
+          onUpgrade={handleShowPricing}
+        />;
       case 'terms':
         return <TermsForm register={register} errors={errors} />;
       case 'preview':
@@ -113,7 +148,10 @@ function App() {
         </div>
       </header>
 
-      <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+              <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        {/* Usage Display */}
+        <UsageDisplay onUpgrade={handleShowPricing} />
+
         {/* Progress Steps */}
         <div className="progress-nav">
           <nav aria-label="Progress">
@@ -175,6 +213,14 @@ function App() {
           </div>
         </form>
       </div>
+
+      {/* Pricing Modal */}
+      {showPricing && (
+        <PricingPage
+          onSelectPlan={handleSelectPlan}
+          onClose={() => setShowPricing(false)}
+        />
+      )}
     </div>
   );
 }
