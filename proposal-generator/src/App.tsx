@@ -11,6 +11,7 @@ import { TemplateSelector } from './components/TemplateSelector';
 import { PdfFeatureShowcase } from './components/PdfFeatureShowcase';
 import { StyledPdfShowcase } from './components/StyledPdfShowcase';
 import { PdfStyleComparison } from './components/PdfStyleComparison';
+import { DemoNotice } from './components/DemoNotice';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthModal } from './components/AuthModal';
 import { UserHeader } from './components/UserHeader';
@@ -239,6 +240,9 @@ function App() {
         onShowDashboard={handleShowDashboard}
         onShowPricing={handleShowPricing}
       />
+      
+      {/* Demo Notice */}
+      <DemoNotice />
 
             <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
         {/* Header */}

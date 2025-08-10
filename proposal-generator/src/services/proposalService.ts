@@ -11,7 +11,7 @@ import {
   orderBy, 
   serverTimestamp 
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { db, isFirebaseConfigured } from '../config/firebase';
 import { ProposalData } from '../types';
 
 export interface SavedProposal {
@@ -34,6 +34,10 @@ class ProposalService {
   private collectionName = 'proposals';
 
   async saveProposal(userId: string, proposalData: ProposalData, template: string): Promise<string> {
+    if (!isFirebaseConfigured || !db) {
+      throw new Error('Database not configured. Please set up Firebase to save proposals.');
+    }
+    
     try {
       const proposal: Omit<SavedProposal, 'id'> = {
         userId,
@@ -58,6 +62,10 @@ class ProposalService {
   }
 
   async updateProposal(proposalId: string, proposalData: ProposalData, template: string): Promise<void> {
+    if (!isFirebaseConfigured || !db) {
+      throw new Error('Database not configured');
+    }
+    
     try {
       const proposalRef = doc(db, this.collectionName, proposalId);
       await updateDoc(proposalRef, {
@@ -77,6 +85,10 @@ class ProposalService {
   }
 
   async deleteProposal(proposalId: string): Promise<void> {
+    if (!isFirebaseConfigured || !db) {
+      throw new Error('Database not configured');
+    }
+    
     try {
       await deleteDoc(doc(db, this.collectionName, proposalId));
     } catch (error) {
@@ -86,6 +98,10 @@ class ProposalService {
   }
 
   async getUserProposals(userId: string): Promise<SavedProposal[]> {
+    if (!isFirebaseConfigured || !db) {
+      return []; // Return empty array if not configured
+    }
+    
     try {
       const q = query(
         collection(db, this.collectionName),
@@ -105,6 +121,10 @@ class ProposalService {
   }
 
   async getProposal(proposalId: string): Promise<SavedProposal | null> {
+    if (!isFirebaseConfigured || !db) {
+      return null;
+    }
+    
     try {
       const docRef = doc(db, this.collectionName, proposalId);
       const docSnap = await getDoc(docRef);
@@ -123,6 +143,10 @@ class ProposalService {
   }
 
   async updateProposalStatus(proposalId: string, status: SavedProposal['status']): Promise<void> {
+    if (!isFirebaseConfigured || !db) {
+      throw new Error('Database not configured');
+    }
+    
     try {
       const proposalRef = doc(db, this.collectionName, proposalId);
       await updateDoc(proposalRef, {

@@ -9,7 +9,7 @@ import {
   signInWithPopup,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth, isFirebaseConfigured } from '../config/firebase';
 
 export interface AuthUser {
   uid: string;
@@ -24,6 +24,11 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isFirebaseConfigured || !auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
       if (firebaseUser) {
         setUser({
@@ -42,6 +47,11 @@ export const useAuth = () => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    if (!auth) {
+      setError('Authentication not configured');
+      return;
+    }
+    
     try {
       setError(null);
       setLoading(true);
@@ -55,6 +65,11 @@ export const useAuth = () => {
   };
 
   const signUp = async (email: string, password: string) => {
+    if (!auth) {
+      setError('Authentication not configured');
+      return;
+    }
+    
     try {
       setError(null);
       setLoading(true);
@@ -68,6 +83,11 @@ export const useAuth = () => {
   };
 
   const signInWithGoogle = async () => {
+    if (!auth) {
+      setError('Authentication not configured');
+      return;
+    }
+    
     try {
       setError(null);
       setLoading(true);
@@ -82,6 +102,11 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
+    if (!auth) {
+      setError('Authentication not configured');
+      return;
+    }
+    
     try {
       setError(null);
       await signOut(auth);
@@ -92,6 +117,11 @@ export const useAuth = () => {
   };
 
   const resetPassword = async (email: string) => {
+    if (!auth) {
+      setError('Authentication not configured');
+      return;
+    }
+    
     try {
       setError(null);
       await sendPasswordResetEmail(auth, email);
