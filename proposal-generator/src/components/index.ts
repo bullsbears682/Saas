@@ -11,6 +11,7 @@ export { StyledPdfShowcase } from './StyledPdfShowcase';
 export { PdfStyleComparison } from './PdfStyleComparison';
 export { DemoNotice } from './DemoNotice';
 export { DemoFeatures } from './DemoFeatures';
+export { DemoAuthModal } from './DemoAuthModal';
 export { ErrorBoundary } from './ErrorBoundary';
 export { AuthModal } from './AuthModal';
 export { UserHeader } from './UserHeader';
