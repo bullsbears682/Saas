@@ -13,12 +13,14 @@ import { StyledPdfShowcase } from './components/StyledPdfShowcase';
 import { PdfStyleComparison } from './components/PdfStyleComparison';
 import { DemoNotice } from './components/DemoNotice';
 import { DemoFeatures } from './components/DemoFeatures';
+import { DemoAuthModal } from './components/DemoAuthModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { AuthModal } from './components/AuthModal';
 import { UserHeader } from './components/UserHeader';
 import { ProposalDashboard } from './components/ProposalDashboard';
 import { useAuth } from './hooks/useAuth';
+import { isFirebaseConfigured } from './config/firebase';
 import { proposalService, SavedProposal } from './services/proposalService';
 import { generateEnhancedProposalPDF } from './utils/enhancedPdfGenerator';
 
@@ -385,13 +387,21 @@ function App() {
         </div>
       )}
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-        onModeChange={setAuthMode}
-      />
+      {/* Auth Modal - Real auth when Firebase configured, demo modal otherwise */}
+      {isFirebaseConfigured ? (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          mode={authMode}
+          onModeChange={setAuthMode}
+        />
+      ) : (
+        <DemoAuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onShowPricing={handleShowPricing}
+        />
+      )}
 
       {/* Pricing Modal */}
       {showPricing && (
